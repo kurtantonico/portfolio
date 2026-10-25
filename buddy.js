@@ -25,7 +25,11 @@
   const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
   const rand = (a, b) => a + Math.random() * (b - a);
   const pick = (list) => list[Math.floor(Math.random() * list.length)];
-  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const esc = (s) =>
+    String(s).replace(
+      /[&<>"]/g,
+      (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
+    );
 
   // Build the star + chat panel (so index.html only needs the script tags)
   const holder = document.createElement("div");
@@ -76,39 +80,63 @@
     </section>`;
   document.body.append(...holder.children);
 
-  const buddy = $("buddy"), star = $("bstar"), grad = $("buddyGrad");
+  const buddy = $("buddy"),
+    star = $("bstar"),
+    grad = $("buddyGrad");
   const pupils = [...star.querySelectorAll(".pupil")];
-  const bubble = $("bbubble"), said = $("bsaid");
-  const chat = $("bchat"), slot = $("bslot"), msgs = $("bmsgs");
-  const chips = $("bchips"), form = $("bform"), input = $("binput");
+  const bubble = $("bbubble"),
+    said = $("bsaid");
+  const chat = $("bchat"),
+    slot = $("bslot"),
+    msgs = $("bmsgs");
+  const chips = $("bchips"),
+    form = $("bform"),
+    input = $("binput");
 
   /* ===== LOOK & MOOD ===== */
-  let mood = "idle", moodTimer;
+  let mood = "idle",
+    moodTimer;
   star.classList.add("m-idle");
   function setMood(m, ms) {
     star.classList.remove("m-" + mood);
     mood = m;
     star.classList.add("m-" + m);
     clearTimeout(moodTimer);
-    if (ms) moodTimer = setTimeout(() => setMood(sleeping ? "sleep" : "idle"), ms);
+    if (ms)
+      moodTimer = setTimeout(() => setMood(sleeping ? "sleep" : "idle"), ms);
   }
-  star.addEventListener("pointerenter", (e) => e.pointerType === "mouse" && setMood("happy"));
-  star.addEventListener("pointerleave", () => setMood(sleeping ? "sleep" : "idle"));
+  star.addEventListener(
+    "pointerenter",
+    (e) => e.pointerType === "mouse" && setMood("happy"),
+  );
+  star.addEventListener("pointerleave", () =>
+    setMood(sleeping ? "sleep" : "idle"),
+  );
 
   // random blinking
   (function blink() {
-    setTimeout(() => {
-      if (!sleeping && mood === "idle") {
-        star.classList.add("blink");
-        setTimeout(() => star.classList.remove("blink"), 130);
-      }
-      blink();
-    }, rand(2400, 5200));
+    setTimeout(
+      () => {
+        if (!sleeping && mood === "idle") {
+          star.classList.add("blink");
+          setTimeout(() => star.classList.remove("blink"), 130);
+        }
+        blink();
+      },
+      rand(2400, 5200),
+    );
   })();
 
   // little sparkles shed while moving fast
   let sparkCount = 0;
-  const SPARK_COLORS = ["#4f8cff", "#4f8cff", "#3b6ee8", "#8fc27a", "#f0a24f", "#ee6a4d"];
+  const SPARK_COLORS = [
+    "#4f8cff",
+    "#4f8cff",
+    "#3b6ee8",
+    "#8fc27a",
+    "#f0a24f",
+    "#ee6a4d",
+  ];
   function spawnSpark(px, py) {
     const s = document.createElement("i");
     s.className = "spark";
@@ -123,11 +151,18 @@
   }
 
   /* ===== MOVEMENT LOOP ===== */
-  let x = innerWidth - 50, y = -90; // starts above the page, then drops in
-  let vx = 0, vy = 0;
-  let spin = 0, spinTo = 0, dock = 1;
-  let chatOpen = false, sleeping = false, talkUntil = 0;
-  let lastActive = performance.now(), lastSpark = 0;
+  let x = innerWidth - 50,
+    y = -90; // starts above the page, then drops in
+  let vx = 0,
+    vy = 0;
+  let spin = 0,
+    spinTo = 0,
+    dock = 1;
+  let chatOpen = false,
+    sleeping = false,
+    talkUntil = 0;
+  let lastActive = performance.now(),
+    lastSpark = 0;
   let starW = star.offsetWidth || 52;
   const pointer = { x: 0, y: 0, has: false };
   addEventListener("resize", () => (starW = star.offsetWidth || 52));
@@ -188,10 +223,15 @@
     star.style.transform =
       (stretch > 0.01
         ? `rotate(${ang.toFixed(3)}rad) scale(${(1 + stretch).toFixed(3)}, ${(1 - stretch * 0.45).toFixed(3)}) rotate(${(-ang).toFixed(3)}rad) `
-        : "") + `rotate(${rot.toFixed(1)}deg) scale(${(dock * breathe).toFixed(3)})`;
+        : "") +
+      `rotate(${rot.toFixed(1)}deg) scale(${(dock * breathe).toFixed(3)})`;
 
     // colors slowly "swim" inside the star
-    if (!reduceMotion) grad.setAttribute("gradientTransform", `rotate(${(Math.sin(now / 1400) * 25).toFixed(1)} .5 .5)`);
+    if (!reduceMotion)
+      grad.setAttribute(
+        "gradientTransform",
+        `rotate(${(Math.sin(now / 1400) * 25).toFixed(1)} .5 .5)`,
+      );
 
     // 4) eyes follow the cursor (or look toward the content)
     if (!sleeping) {
@@ -245,9 +285,18 @@
   addEventListener("touchstart", poke, { passive: true });
 
   // which section is on screen?
-  const SECTION_IDS = ["home", "projects", "stack", "certs", "writing", "contact"];
+  const SECTION_IDS = [
+    "home",
+    "projects",
+    "stack",
+    "certs",
+    "writing",
+    "experience",
+  ];
   const visited = new Set();
-  let section = null, arriveTimer, checking = false;
+  let section = null,
+    arriveTimer,
+    checking = false;
 
   function currentSection() {
     const line = innerHeight * 0.4;
@@ -297,7 +346,11 @@
     if (!p) return;
     vy -= 8;
     setMood("happy", 1500);
-    if (!chatOpen) say(`Ooh, ${p.title}! ${p.status ? "Still cooking 🔧" : "Take a look around ✨"}`, 4200);
+    if (!chatOpen)
+      say(
+        `Ooh, ${p.title}! ${p.status ? "Still cooking 🔧" : "Take a look around ✨"}`,
+        4200,
+      );
   }
   addEventListener("hashchange", onHash);
 
@@ -321,11 +374,13 @@
       greeted = sessionStorage.getItem("lumiGreeted") === "1";
       sessionStorage.setItem("lumiGreeted", "1");
     } catch (e) {}
-    if (!greeted && !/^#project-/.test(location.hash) && BUDDY.greeting) say(BUDDY.greeting, 5500);
+    if (!greeted && !/^#project-/.test(location.hash) && BUDDY.greeting)
+      say(BUDDY.greeting, 5500);
   }, 1700);
 
   /* ===== CHAT PANEL ===== */
-  let busy = false, welcomed = false;
+  let busy = false,
+    welcomed = false;
 
   function openChat() {
     if (chatOpen) return;
@@ -337,8 +392,14 @@
     setMood("happy", 1200);
     if (!welcomed) {
       welcomed = true;
-      botSay({ text: BUDDY.welcome || `Hi, I'm ${NAME}! Ask me anything about Kurt's work.` });
-      chips.innerHTML = (BUDDY.suggestions || []).map((s) => `<button type="button">${esc(s)}</button>`).join("");
+      botSay({
+        text:
+          BUDDY.welcome ||
+          `Hi, I'm ${NAME}! Ask me anything about Kurt's work.`,
+      });
+      chips.innerHTML = (BUDDY.suggestions || [])
+        .map((s) => `<button type="button">${esc(s)}</button>`)
+        .join("");
     }
     input.focus({ preventScroll: true });
   }
@@ -390,7 +451,8 @@
         el.textContent = chars.slice(0, i).join("");
         msgs.scrollTop = msgs.scrollHeight;
         if (i < chars.length) return setTimeout(step, 16);
-        if (reply.actions && reply.actions.length) el.appendChild(renderActions(reply.actions));
+        if (reply.actions && reply.actions.length)
+          el.appendChild(renderActions(reply.actions));
         msgs.scrollTop = msgs.scrollHeight;
         resolve();
       };
@@ -420,8 +482,10 @@
       btn.addEventListener("click", () => {
         closeChat(); // the star flies out of the chat and along with you
         setTimeout(() => {
-          if (a.go && typeof scrollToSection === "function") scrollToSection(a.go);
-          else if (typeof a.project === "number") location.hash = "#project-" + a.project;
+          if (a.go && typeof scrollToSection === "function")
+            scrollToSection(a.go);
+          else if (typeof a.project === "number")
+            location.hash = "#project-" + a.project;
         }, 260);
       });
       wrap.appendChild(btn);
@@ -430,7 +494,9 @@
   }
 
   function ask(raw) {
-    const q = String(raw).trim().slice(0, G.maxLength || 200);
+    const q = String(raw)
+      .trim()
+      .slice(0, G.maxLength || 200);
     if (!q || busy) return;
     busy = true;
     addMsg("user", q);
@@ -460,7 +526,13 @@
      Order: injection → private → small talk → knowledge → off-topic → fallback.
      Matching is keyword based, so it can only say what's written down. */
   const norm = (s) =>
-    String(s).toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s-]/g, " ").replace(/\s+/g, " ").trim();
+    String(s)
+      .toLowerCase()
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9\s-]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
   const hasPhrase = (nq, phrase) => ` ${nq} `.includes(` ${norm(phrase)} `);
 
   // how many of these keywords appear in the question (phrases count double)
@@ -471,96 +543,248 @@
       if (!k) continue;
       if (k.includes(" ")) {
         if (nq.includes(k)) s += 2;
-      } else if (tokens.some((t) => t === k || (k.length >= 4 && t.startsWith(k)) || (t.length >= 4 && k.startsWith(t)))) {
+      } else if (
+        tokens.some(
+          (t) =>
+            t === k ||
+            (k.length >= 4 && t.startsWith(k)) ||
+            (t.length >= 4 && k.startsWith(t)),
+        )
+      ) {
         s += 1;
       }
     }
     return s;
   }
 
-  const emailAction = () => (D.email ? [{ label: "Email Kurt", href: "mailto:" + D.email }] : []);
-  const TITLE_STOP = new Set(["project", "projects", "tool", "tools", "app", "apps", "system", "robot"]);
+  const emailAction = () =>
+    D.email ? [{ label: "Email Kurt", href: "mailto:" + D.email }] : [];
+  const TITLE_STOP = new Set([
+    "project",
+    "projects",
+    "tool",
+    "tools",
+    "app",
+    "apps",
+    "system",
+    "robot",
+  ]);
   const projectKeywords = (title) => {
     const full = norm(title);
-    const words = full.split(/[\s-]+/).filter((w) => w.length >= 5 && !TITLE_STOP.has(w));
+    const words = full
+      .split(/[\s-]+/)
+      .filter((w) => w.length >= 5 && !TITLE_STOP.has(w));
     return [...new Set([full, ...words])];
   };
 
   // entries built automatically from data.js, so you don't have to retype anything
   function autoKnowledge() {
     const list = [];
-    if (D.bio) list.push({ keywords: ["who", "about", "yourself", "introduce", "background", "bio"], answer: D.bio });
+    if (D.bio)
+      list.push({
+        keywords: [
+          "who",
+          "about",
+          "yourself",
+          "introduce",
+          "background",
+          "bio",
+        ],
+        answer: D.bio,
+      });
 
     if (D.projects && D.projects.length) {
       const names = D.projects.map((p) => p.title).join(", ");
       list.push({
-        keywords: ["project", "projects", "build", "built", "building", "portfolio", "made", "shipped", "app", "apps"],
+        keywords: [
+          "project",
+          "projects",
+          "build",
+          "built",
+          "building",
+          "portfolio",
+          "made",
+          "shipped",
+          "app",
+          "apps",
+        ],
         answer: `Kurt has been building ${names}. Ask me about any of them, or tap a card in the Projects section.`,
         actions: [{ label: "See projects", go: "projects" }],
       });
       D.projects.forEach((p, i) => {
         const text = p.about || p.desc || "";
         const placeholder = !text || /lorem ipsum/i.test(text);
-        const body = placeholder ? `${p.title} is one of Kurt's projects. He's still writing up the details, so check back soon.` : `${p.title}${p.status ? " (" + p.status.toLowerCase() + ")" : ""}: ${text}`;
-        const stack = p.stack && p.stack.length ? ` Built with ${p.stack.join(", ")}.` : "";
-        list.push({ keywords: projectKeywords(p.title), weight: 3, answer: body + stack, actions: [{ label: `Open ${p.title}`, project: i }] });
+        const body = placeholder
+          ? `${p.title} is one of Kurt's projects. He's still writing up the details, so check back soon.`
+          : `${p.title}${p.status ? " (" + p.status.toLowerCase() + ")" : ""}: ${text}`;
+        const stack =
+          p.stack && p.stack.length ? ` Built with ${p.stack.join(", ")}.` : "";
+        list.push({
+          keywords: projectKeywords(p.title),
+          weight: 3,
+          answer: body + stack,
+          actions: [{ label: `Open ${p.title}`, project: i }],
+        });
       });
     }
     if (D.stack) {
-      const text = Object.entries(D.stack).map(([k, v]) => `${k}: ${v.join(", ")}`).join(" · ");
+      const text = Object.entries(D.stack)
+        .map(([k, v]) => `${k}: ${v.join(", ")}`)
+        .join(" · ");
       list.push({
-        keywords: ["stack", "tech", "technologies", "tools", "languages", "framework", "frameworks", "use", "uses", "using", "skills", "skill"],
+        keywords: [
+          "stack",
+          "tech",
+          "technologies",
+          "tools",
+          "languages",
+          "framework",
+          "frameworks",
+          "use",
+          "uses",
+          "using",
+          "skills",
+          "skill",
+        ],
         answer: `Here's Kurt's toolbox. ${text}.`,
         actions: [{ label: "See the stack", go: "stack" }],
       });
     }
     if (D.email) {
-      const socials = (D.social || []).map(([n, u]) => ({ label: n + " ↗", href: u }));
+      const socials = (D.social || []).map(([n, u]) => ({
+        label: n + " ↗",
+        href: u,
+      }));
       list.push({
-        keywords: ["contact", "email", "reach", "message", "touch", "talk", "connect"],
+        keywords: [
+          "contact",
+          "email",
+          "reach",
+          "message",
+          "touch",
+          "talk",
+          "connect",
+        ],
         answer: `The best way to reach Kurt is email: ${D.email}. You can also find him online.`,
         actions: [...emailAction(), ...socials],
       });
     }
     if (D.social && D.social.length) {
       list.push({
-        keywords: ["github", "linkedin", "substack", "social", "socials", "profile", "profiles", "online", "follow"],
+        keywords: [
+          "github",
+          "linkedin",
+          "substack",
+          "social",
+          "socials",
+          "profile",
+          "profiles",
+          "online",
+          "follow",
+        ],
         answer: "You can find Kurt here:",
         actions: D.social.map(([n, u]) => ({ label: n + " ↗", href: u })),
       });
     }
     if (D.communities && D.communities.length) {
       list.push({
-        keywords: ["community", "communities", "aws", "gdg", "n8n", "member", "part of"],
+        keywords: [
+          "community",
+          "communities",
+          "aws",
+          "gdg",
+          "n8n",
+          "member",
+          "part of",
+        ],
         answer: `Kurt is part of the ${D.communities.join(", ")} communities.`,
+      });
+    }
+    // experience (skipped while it's still the placeholder text)
+    const realExp = (D.experiences || []).filter(
+      (e) => e.role && !/^role title$/i.test(e.role),
+    );
+    if (realExp.length) {
+      list.push({
+        keywords: [
+          "experience",
+          "experiences",
+          "worked",
+          "career",
+          "role",
+          "roles",
+          "history",
+          "employer",
+          "company",
+          "companies",
+        ],
+        answer: `Kurt's experience: ${realExp.map((e) => `${e.role} at ${e.org}${e.period ? " (" + e.period + ")" : ""}`).join("; ")}.`,
+        actions: [{ label: "See experience", go: "experience" }],
       });
     }
     return list;
   }
-  const knowledge = [...(BUDDY.knowledge || []).map((e) => ({ ...e, user: true })), ...autoKnowledge()];
+  const knowledge = [
+    ...(BUDDY.knowledge || []).map((e) => ({ ...e, user: true })),
+    ...autoKnowledge(),
+  ];
 
   function answer(raw) {
     const nq = norm(raw);
     const tokens = nq.split(" ");
 
     // 1) trying to override its rules
-    const refuse = ["ignore previous", "ignore all", "ignore your", "ignore the above", "system prompt", "your instructions", "jailbreak", "developer mode", "pretend you are", "act as", "disregard"].concat(G.refuse || []);
-    if (refuse.some((p) => hasPhrase(nq, p))) return { text: G.refuseAnswer || "Nice try 😄 I only share what Kurt put on this site." };
+    const refuse = [
+      "ignore previous",
+      "ignore all",
+      "ignore your",
+      "ignore the above",
+      "system prompt",
+      "your instructions",
+      "jailbreak",
+      "developer mode",
+      "pretend you are",
+      "act as",
+      "disregard",
+    ].concat(G.refuse || []);
+    if (refuse.some((p) => hasPhrase(nq, p)))
+      return {
+        text:
+          G.refuseAnswer ||
+          "Nice try 😄 I only share what Kurt put on this site.",
+      };
 
     // 2) private topics
-    if (G.private && score(nq, tokens, G.private.keywords) > 0) return { text: G.private.answer, actions: emailAction() };
+    if (G.private && score(nq, tokens, G.private.keywords) > 0)
+      return { text: G.private.answer, actions: emailAction() };
 
     // 3) small talk
-    if (tokens.length <= 3 && ["hi", "hello", "hey", "yo", "hola", "kumusta", "sup"].includes(tokens[0]))
-      return { text: pick([`Hey! ✨ I'm ${NAME}. Ask me about Kurt's projects, stack, or how to reach him.`, `Hi there! 👋 What would you like to know about Kurt?`]) };
-    if (/\b(thanks|thank you|salamat)\b/.test(nq)) return { text: pick(["Anytime! ✨", "You're welcome 💫", "Happy to help!"]) };
+    if (
+      tokens.length <= 3 &&
+      ["hi", "hello", "hey", "yo", "hola", "kumusta", "sup"].includes(tokens[0])
+    )
+      return {
+        text: pick([
+          `Hey! ✨ I'm ${NAME}. Ask me about Kurt's projects, stack, or how to reach him.`,
+          `Hi there! 👋 What would you like to know about Kurt?`,
+        ]),
+      };
+    if (/\b(thanks|thank you|salamat)\b/.test(nq))
+      return {
+        text: pick(["Anytime! ✨", "You're welcome 💫", "Happy to help!"]),
+      };
     if (/\b(who are you|your name|what are you)\b/.test(nq))
-      return { text: `I'm ${NAME}, a little star who lives on Kurt's site. I only know what Kurt has told me about his work.` };
+      return {
+        text: `I'm ${NAME}, a little star who lives on Kurt's site. I only know what Kurt has told me about his work.`,
+      };
     if (/\b(what can you do|how can you help)\b/.test(nq) || nq === "help")
-      return { text: "Ask me about Kurt's projects, his stack, the communities he's in, or how to reach him. If I don't know something, I'll say so." };
+      return {
+        text: "Ask me about Kurt's projects, his stack, the communities he's in, or how to reach him. If I don't know something, I'll say so.",
+      };
 
     // 4) knowledge (best score wins; your own entries win ties)
-    let best = null, bestScore = 0;
+    let best = null,
+      bestScore = 0;
     for (const e of knowledge) {
       const sc = score(nq, tokens, e.keywords);
       if (!sc) continue;
@@ -570,12 +794,20 @@
         bestScore = total;
       }
     }
-    if (best) return { text: typeof best.answer === "function" ? best.answer() : best.answer, actions: best.actions };
+    if (best)
+      return {
+        text: typeof best.answer === "function" ? best.answer() : best.answer,
+        actions: best.actions,
+      };
 
     // 5) outside its job
-    if (G.offTopic && score(nq, tokens, G.offTopic.keywords) > 0) return { text: G.offTopic.answer };
+    if (G.offTopic && score(nq, tokens, G.offTopic.keywords) > 0)
+      return { text: G.offTopic.answer };
 
     // 6) doesn't know
-    return { text: G.fallback || "I don't know that one yet.", actions: emailAction() };
+    return {
+      text: G.fallback || "I don't know that one yet.",
+      actions: emailAction(),
+    };
   }
 })();

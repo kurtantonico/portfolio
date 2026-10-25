@@ -1,12 +1,12 @@
 /* =====================================================================
    styles.css
    Order: variables → base → sidebar → layout → hero → projects → project
-          page + slider → stack → lists → footer → palette → reveal →
+          page + slider → stack → lists → experience → palette → reveal →
           responsive → accessibility
 
    Type system: Instrument Serif = name, project titles & big email,
                 Inter Tight = all body/UI text,
-                JetBrains Mono = small labels only (.micro, dates, clock)
+                JetBrains Mono = small labels only (.micro, dates)
    Color: monochrome + ONE accent family (blue-led gradient, --accent*)
    ===================================================================== */
 
@@ -38,16 +38,6 @@
     #ee6a4d 100%
   );
   --glow-op: 0.5; /* strength of the hover glow on project cards */
-  /* the line that draws in above each section: warm tip, blue body, fades out */
-  --line-grad: linear-gradient(
-    90deg,
-    #ee6a4d 0%,
-    #f0a24f 5%,
-    #8fc27a 10%,
-    #4f8cff 24%,
-    #3b6ee8 50%,
-    transparent 100%
-  );
   --display: "Instrument Serif", Georgia, serif;
   --sans: "Inter Tight", "Helvetica Neue", Arial, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
@@ -63,29 +53,7 @@
   color-scheme: dark;
 }
 
-/* Follow the OS light mode, unless the user manually picked dark */
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --bg: #f4f4f2;
-    --fg: #111;
-    --mute: #666;
-    --line: rgba(0, 0, 0, 0.1);
-    --card: #ecece9;
-    --ph: #dbe6f5;
-    --accent: #2563eb;
-    --text-grad: linear-gradient(
-      90deg,
-      #1d4ed8 0%,
-      #2563eb 40%,
-      #3f9b63 68%,
-      #e08a2c 86%,
-      #dc4a30 100%
-    );
-    --glow-op: 0.38;
-    color-scheme: light;
-  }
-}
-/* Manual choice from the theme button (data-theme set in main.js) */
+/* Dark is the default. The theme button switches by setting data-theme (main.js) */
 :root[data-theme="light"] {
   --bg: #f4f4f2;
   --fg: #111;
@@ -209,6 +177,7 @@ a {
 /* other hovered text (sidebar nav, project titles, list rows): gradient text */
 aside nav a:hover,
 .card:hover h3,
+.exp:hover .exp-role,
 .list a:hover span {
   background-image: var(--text-grad);
   -webkit-background-clip: text;
@@ -329,7 +298,7 @@ main {
 .col {
   max-width: var(--wrap);
   margin: 0 auto;
-  padding: 0 var(--gutter);
+  padding: 0 var(--gutter) 120px; /* room under the last section */
 }
 section {
   margin-top: 104px;
@@ -352,30 +321,6 @@ section {
   top: 0;
   height: 1px;
   background: var(--line);
-}
-/* gradient line that draws left → right when the section scrolls into view
-   (main.js adds .in). Same for the footer's top line. */
-.sec-head::after,
-footer::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: var(--line-grad);
-  clip-path: inset(0 100% 0 0);
-  transition: clip-path 1.8s cubic-bezier(0.16, 1, 0.3, 1); /* soft expo-out */
-  pointer-events: none;
-}
-.sec-head::after {
-  top: 0;
-}
-footer::after {
-  top: -1px;
-}
-.sec-head.in::after,
-footer.in::after {
-  clip-path: inset(0);
 }
 /* section label: a band of the gradient sweeps across the text once, then it settles */
 .sec-head h2 {
@@ -781,31 +726,47 @@ footer.in::after {
   font-size: 11.5px;
 }
 
-/* ===== FOOTER ===== */
-footer {
-  position: relative;
-  margin-top: 104px;
-  padding: 48px 0 40px;
+/* ===== EXPERIENCE ===== */
+.exp-list {
   border-top: 1px solid var(--line);
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
 }
-.mail {
-  font: 400 clamp(1.8rem, 4vw, 3rem) / 1.1 var(--display);
-  letter-spacing: -0.01em;
-  width: max-content;
-  max-width: 100%;
-  overflow-wrap: anywhere;
+.exp {
+  display: grid;
+  grid-template-columns: 150px 1fr; /* period | details */
+  gap: 24px;
+  padding: 26px 0;
+  border-bottom: 1px solid var(--line);
 }
-.fr {
+.exp-when {
+  padding-top: 5px;
+}
+.exp-head {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
   flex-wrap: wrap;
-  font-size: 13px;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+.exp-role {
+  width: fit-content;
+  font-size: 1.15rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  transition: color 0.25s;
+}
+.exp-org {
+  font-size: 14px;
   color: var(--mute);
+}
+.exp p {
+  margin-top: 8px;
+  max-width: 34rem;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--mute);
+}
+.exp .tags {
+  margin-top: 14px;
 }
 
 /* ===== COMMAND PALETTE ===== */
@@ -948,6 +909,10 @@ footer {
   .card {
     min-height: 240px;
   }
+  .exp {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
 }
 
 /* ===== ACCESSIBILITY ===== */
@@ -968,10 +933,6 @@ footer {
   *::after {
     transition: none !important;
     animation: none !important;
-  }
-  .sec-head::after,
-  footer::after {
-    clip-path: inset(0);
   }
 }
 

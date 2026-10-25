@@ -2,7 +2,7 @@
    main.js — builds the page from DATA (data.js) and adds interactions.
    Sections: helpers → render → smooth scroll → projects list →
              project page (+ slider) → theme → menu → palette →
-             fade-in → clock
+             fade-in
    ===================================================================== */
 
 /* ===== HELPERS ===== */
@@ -41,20 +41,17 @@ $("orgs").innerHTML = renderList(
   (name) => `<div><b>${name}</b><span class="micro">Community</span></div>`,
 );
 
-/* Social links: same markup in the hero and the footer */
+/* Social links (hero) */
 const socialLinks = renderList(
   DATA.social,
   ([name, url]) =>
     `<a class="ul" href="${url}" target="_blank" rel="noopener">${name} ↗</a>`,
 );
 $("links").innerHTML = socialLinks;
-$("flinks").innerHTML = socialLinks;
 
-/* Email: sidebar + footer, both as mailto links */
-["mail", "sidemail"].forEach((id) => {
-  $(id).textContent = DATA.email;
-  $(id).href = `mailto:${DATA.email}`;
-});
+/* Email: sidebar mailto link */
+$("sidemail").textContent = DATA.email;
+$("sidemail").href = `mailto:${DATA.email}`;
 
 /* "All posts" points to the Substack link (found by name, not position) */
 const substack = DATA.social.find(([name]) => name === "substack");
@@ -74,6 +71,19 @@ $("certl").innerHTML = renderList(DATA.certs, (c) =>
 $("postl").innerHTML = renderList(DATA.posts, (p) =>
   listRow(p.url, p.title, p.date),
 );
+
+/* Experience: period on the left, role + organization + notes on the right.
+   The whole section hides if DATA.experiences is empty. */
+const experiences = DATA.experiences || [];
+$("experience").hidden = experiences.length === 0;
+$("expl").innerHTML = renderList(experiences, (e) => {
+  const desc = e.desc ? `<p>${e.desc}</p>` : "";
+  const stack =
+    e.stack && e.stack.length
+      ? `<div class="tags">${tagList(e.stack)}</div>`
+      : "";
+  return `<div class="exp"><div class="exp-when micro">${e.period || ""}</div><div class="exp-body"><div class="exp-head"><h3 class="exp-role">${e.role}</h3><span class="exp-org">${e.org || ""}</span></div>${desc}${stack}</div></div>`;
+});
 
 /* ===== SMOOTH SCROLL (Lenis, bundled as lenis.min.js) =====
    Lenis eases the page scroll for wheel/trackpad. Skipped if the visitor
@@ -371,7 +381,7 @@ const SECTIONS = [
   ["Stack", "stack"],
   ["Certifications", "certs"],
   ["Writing", "writing"],
-  ["Contact", "contact"],
+  ["Experience", "experience"],
 ];
 
 $("palin").innerHTML = renderList(
@@ -385,8 +395,6 @@ const openPalette = () => {
 };
 const closePalette = () => palette.classList.remove("on");
 
-$("kbd").onclick = openPalette;
-
 // Clicking a button scrolls to its section; clicking the backdrop just closes
 palette.addEventListener("click", (e) => {
   const button = e.target.closest("button");
@@ -394,7 +402,7 @@ palette.addEventListener("click", (e) => {
   if (button || e.target === palette) closePalette();
 });
 
-// Keyboard: Ctrl/Cmd+K toggles the palette, Escape closes palette / project page
+// Keyboard: Ctrl/Cmd+K toggles the palette (no button for it), Escape closes palette / project page
 addEventListener("keydown", (e) => {
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
     e.preventDefault();
@@ -408,7 +416,7 @@ addEventListener("keydown", (e) => {
 
 /* ===== FADE-IN ON SCROLL ===== */
 // Adds "in" the first time an element is 15% visible: .rv fades in; section heads
-// and the footer draw their gradient line (see .sec-head in styles.css)
+// play their label sweep (see .sec-head h2 in styles.css)
 const revealObserver = new IntersectionObserver(
   (entries) =>
     entries.forEach((entry) => {
@@ -419,18 +427,5 @@ const revealObserver = new IntersectionObserver(
   { threshold: 0.15 },
 );
 document
-  .querySelectorAll(".rv, .sec-head, footer")
+  .querySelectorAll(".rv, .sec-head")
   .forEach((el) => revealObserver.observe(el));
-
-/* ===== FOOTER CLOCK (Manila time) ===== */
-function updateClock() {
-  const time = new Date().toLocaleTimeString("en-GB", {
-    timeZone: "Asia/Manila",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
-  $("clock").textContent = `Manila ${time}`;
-}
-updateClock();
-setInterval(updateClock, 1000);
