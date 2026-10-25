@@ -1,0 +1,1377 @@
+/* =====================================================================
+   styles.css
+   Order: variables → base → sidebar → layout → hero → projects → project
+          page + slider → stack → lists → footer → palette → reveal →
+          responsive → accessibility
+
+   Type system: Instrument Serif = name, project titles & big email,
+                Inter Tight = all body/UI text,
+                JetBrains Mono = small labels only (.micro, dates, clock)
+   Color: monochrome + ONE accent family (blue-led gradient, --accent*)
+   ===================================================================== */
+
+/* ===== THEME VARIABLES ===== */
+:root {
+  --bg: #0a0a0a; /* page background */
+  --fg: #f5f5f5; /* main text */
+  --mute: #8a8a8a; /* secondary text */
+  --line: rgba(255, 255, 255, 0.1); /* borders */
+  --card: #101010; /* card background */
+  --ph: #1a2a3b; /* placeholder slide color (dark blue) */
+  /* accent: mostly blue, with a small warm hint at the top (like the logo) */
+  --accent: #4f8cff;
+  --accent-grad: linear-gradient(
+    180deg,
+    #ee6a4d 0%,
+    #f0a24f 12%,
+    #8fc27a 26%,
+    #4f8cff 48%,
+    #3b6ee8 100%
+  );
+  /* hovered text: horizontal gradient, blue-led with the warm tip at the end */
+  --text-grad: linear-gradient(
+    90deg,
+    #3b6ee8 0%,
+    #4f8cff 40%,
+    #8fc27a 68%,
+    #f0a24f 86%,
+    #ee6a4d 100%
+  );
+  --glow-op: 0.5; /* strength of the hover glow on project cards */
+  /* the line that draws in above each section: warm tip, blue body, fades out */
+  --line-grad: linear-gradient(
+    90deg,
+    #ee6a4d 0%,
+    #f0a24f 5%,
+    #8fc27a 10%,
+    #4f8cff 24%,
+    #3b6ee8 50%,
+    transparent 100%
+  );
+  --display: "Instrument Serif", Georgia, serif;
+  --sans: "Inter Tight", "Helvetica Neue", Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --side: 224px; /* sidebar width (0 on mobile) */
+  --wrap: 960px; /* max width of the page content */
+  --gutter: 64px; /* side padding inside that width */
+  /* left edge shared by the hero text and the content below it */
+  --edge: max(var(--gutter), calc((100% - var(--wrap)) / 2 + var(--gutter)));
+  --photo-h: 78vh; /* hero photo height */
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  color-scheme: dark;
+}
+
+/* Follow the OS light mode, unless the user manually picked dark */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f4f4f2;
+    --fg: #111;
+    --mute: #666;
+    --line: rgba(0, 0, 0, 0.1);
+    --card: #ecece9;
+    --ph: #dbe6f5;
+    --accent: #2563eb;
+    --text-grad: linear-gradient(
+      90deg,
+      #1d4ed8 0%,
+      #2563eb 40%,
+      #3f9b63 68%,
+      #e08a2c 86%,
+      #dc4a30 100%
+    );
+    --glow-op: 0.38;
+    color-scheme: light;
+  }
+}
+/* Manual choice from the theme button (data-theme set in main.js) */
+:root[data-theme="light"] {
+  --bg: #f4f4f2;
+  --fg: #111;
+  --mute: #666;
+  --line: rgba(0, 0, 0, 0.1);
+  --card: #ecece9;
+  --ph: #dbe6f5;
+  --accent: #2563eb;
+  --text-grad: linear-gradient(
+    90deg,
+    #1d4ed8 0%,
+    #2563eb 40%,
+    #3f9b63 68%,
+    #e08a2c 86%,
+    #dc4a30 100%
+  );
+  --glow-op: 0.38;
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --bg: #0a0a0a;
+  --fg: #f5f5f5;
+  --mute: #8a8a8a;
+  --line: rgba(255, 255, 255, 0.1);
+  --card: #101010;
+  --ph: #1a2a3b;
+  --accent: #4f8cff;
+  --text-grad: linear-gradient(
+    90deg,
+    #3b6ee8 0%,
+    #4f8cff 40%,
+    #8fc27a 68%,
+    #f0a24f 86%,
+    #ee6a4d 100%
+  );
+  --glow-op: 0.5;
+  color-scheme: dark;
+}
+
+/* ===== BASE ===== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+html {
+  scroll-behavior: smooth; /* fallback if Lenis isn't running */
+  scroll-padding-top: 24px;
+}
+/* Lenis (smooth scroll) needs these; it handles the easing itself */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+html.lenis {
+  scroll-behavior: auto !important;
+}
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+/* while a project page is open, the page behind it can't scroll */
+html.no-scroll {
+  overflow: hidden;
+}
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+[hidden] {
+  display: none !important; /* so hidden elements stay hidden */
+}
+:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ===== UTILITY CLASSES ===== */
+.mono {
+  font-family: var(--mono);
+}
+/* small uppercase labels (the only place mono is used for text) */
+.micro {
+  font: 400 10.5px/1.4 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+/* links: on hover the text turns into the gradient and a gradient underline grows.
+   Two background layers: [underline, text-shaped gradient] */
+.ul {
+  background-image: var(--text-grad), none;
+  background-position:
+    0 100%,
+    0 0;
+  background-size:
+    0 1px,
+    100% 100%;
+  background-repeat: no-repeat;
+  -webkit-background-clip: border-box, text;
+  background-clip: border-box, text;
+  transition:
+    background-size 0.3s,
+    color 0.25s;
+}
+.ul:hover {
+  background-image: var(--text-grad), var(--text-grad);
+  background-size:
+    100% 1px,
+    100% 100%;
+  color: transparent; /* lets the gradient show through the letters */
+}
+/* other hovered text (sidebar nav, project titles, list rows): gradient text */
+aside nav a:hover,
+.card:hover h3,
+.list a:hover span {
+  background-image: var(--text-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.btn {
+  font: 400 12.5px var(--sans);
+  border: 1px solid var(--line);
+  background: none;
+  color: var(--fg);
+  padding: 9px 14px;
+  border-radius: 99px;
+  cursor: pointer;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  transition: border-color 0.2s;
+}
+.btn:hover {
+  border-color: var(--mute);
+}
+.btn span {
+  font: 400 11px var(--mono);
+  color: var(--mute);
+}
+.links {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+/* status pill with a small gradient dot (used on cards and the project page) */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 400 11px var(--sans);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--mute);
+}
+.pill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-grad);
+}
+
+/* ===== SIDEBAR =====
+   Four groups, separated by hairlines: brand | nav (stretches) | tools | contact */
+aside {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: var(--side);
+  padding: calc(32px + env(safe-area-inset-top, 0px)) 24px 28px;
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  z-index: 30;
+  font-size: 13px;
+}
+.side-brand {
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+}
+.brand {
+  font: 500 15px var(--sans);
+  color: var(--fg);
+  margin-bottom: 6px;
+}
+aside nav {
+  flex: 1; /* takes the leftover space, so spacing stays balanced */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px 0;
+  color: var(--mute);
+}
+aside nav a {
+  align-self: flex-start; /* so the gradient spans just the word */
+  transition: color 0.25s;
+}
+.side-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 22px 0;
+  border-top: 1px solid var(--line);
+}
+.side-tools .btn {
+  width: 100%;
+}
+.side-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+  color: var(--mute);
+}
+.side-contact a {
+  overflow-wrap: anywhere;
+  width: max-content;
+  max-width: 100%;
+}
+#burger {
+  display: none; /* only shown on mobile */
+}
+
+/* ===== PAGE LAYOUT ===== */
+main {
+  margin-left: var(--side);
+}
+/* content below the hero: centered, max 960px, same left edge as the hero text */
+.col {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+section {
+  margin-top: 104px;
+}
+/* section label row: "01 — projects" on the left, optional link on the right */
+.sec-head {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: 18px;
+  margin-bottom: 24px;
+}
+/* base hairline above the label */
+.sec-head::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: var(--line);
+}
+/* gradient line that draws left → right when the section scrolls into view
+   (main.js adds .in). Same for the footer's top line. */
+.sec-head::after,
+footer::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--line-grad);
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 1.8s cubic-bezier(0.16, 1, 0.3, 1); /* soft expo-out */
+  pointer-events: none;
+}
+.sec-head::after {
+  top: 0;
+}
+footer::after {
+  top: -1px;
+}
+.sec-head.in::after,
+footer.in::after {
+  clip-path: inset(0);
+}
+/* section label: a band of the gradient sweeps across the text once, then it settles */
+.sec-head h2 {
+  background-image: linear-gradient(
+    90deg,
+    var(--mute) 42%,
+    #3b6ee8 46%,
+    #4f8cff 50%,
+    #8fc27a 53%,
+    #f0a24f 56%,
+    var(--mute) 60%
+  );
+  background-size: 300% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.sec-head.in h2 {
+  animation: sweep 2s 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+@keyframes sweep {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0% 0;
+  }
+}
+
+/* ===== HERO =====
+   Text sits bottom-left; the photo is anchored bottom-right and bleeds off the edge. */
+.hero {
+  margin-top: 0;
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding-left: var(--edge);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto; /* text | photo: they never overlap */
+  align-items: end;
+  overflow: hidden;
+}
+.intro {
+  grid-column: 1;
+  grid-row: 1;
+  position: relative;
+  z-index: 3; /* text stays above the photo and the bottom fade */
+  padding: 0 32px 72px 0;
+}
+.photo {
+  grid-column: 2;
+  grid-row: 1;
+  position: relative;
+  z-index: 1;
+}
+.photo img {
+  display: block;
+  height: var(--photo-h);
+  width: auto;
+  max-width: 52vw;
+  object-fit: contain;
+  object-position: bottom right;
+  filter: grayscale(1);
+}
+.photo svg {
+  display: block;
+  height: var(--photo-h);
+  width: auto;
+  aspect-ratio: 3/4;
+}
+/* fade to the page color at the bottom, so the photo doesn't look cut off */
+.hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: clamp(140px, 26vh, 300px);
+  background: linear-gradient(to top, var(--bg) 6%, transparent);
+  pointer-events: none;
+  z-index: 2;
+}
+.intro h1 {
+  font: 400 clamp(3rem, 6.5vw, 6.5rem) / 0.95 var(--display);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+.intro .links {
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--mute);
+}
+.intro p {
+  margin-top: 32px;
+  max-width: 32rem;
+  line-height: 1.65;
+  color: var(--mute);
+}
+/* community "logos" (text for now) */
+.logos {
+  display: flex;
+  flex-wrap: nowrap; /* AWS, GDG and n8n always stay on one line */
+  gap: clamp(20px, 3.2vw, 40px);
+  margin-top: 44px;
+}
+.logos div {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.logos b {
+  font-size: 1.15rem;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+  opacity: 0.9;
+}
+.logos .micro {
+  font-size: 8.5px;
+}
+
+/* ===== PROJECTS (list on the home page) =====
+   3 equal cards per row. No lift/glow: hover only turns the border blue. */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.card {
+  position: relative;
+  overflow: hidden; /* keeps the glow inside the rounded corners */
+  isolation: isolate;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  background: var(--card);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 280px;
+}
+/* hover glow: two blurred gradient orbs that fade in when the card is hovered and
+   ease toward the cursor (main.js updates --mx / --my while hovering).
+   Moved with transform, so it stays smooth. */
+.card::before,
+.card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: -1; /* behind the card text */
+  border-radius: 50%;
+  transform: translate3d(var(--mx, 50%), var(--my, 50%), 0)
+    translate(-50%, -50%);
+  will-change: transform, opacity;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+}
+/* core: the logo gradient */
+.card::before {
+  width: 240px;
+  height: 240px;
+  background: linear-gradient(
+    135deg,
+    #ee6a4d 0%,
+    #f0a24f 14%,
+    #8fc27a 28%,
+    #4f8cff 50%,
+    #3b6ee8 100%
+  );
+  filter: blur(42px);
+}
+/* soft wide blue halo around it */
+.card::after {
+  width: 460px;
+  height: 460px;
+  background: radial-gradient(circle, #4f8cff 0%, transparent 65%);
+  filter: blur(30px);
+}
+.card:hover::before {
+  opacity: var(--glow-op);
+}
+.card:hover::after {
+  opacity: calc(var(--glow-op) * 0.35);
+}
+/* preview area: first screenshot if set, else a plain striped placeholder */
+.pv {
+  flex: 1;
+  min-height: 110px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  overflow: hidden;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--line) 0 1px,
+    transparent 1px 9px
+  );
+}
+.pv img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+}
+.card h3 {
+  width: fit-content;
+  max-width: 100%;
+  transition: color 0.25s;
+  font-size: 1.05rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.card p {
+  font-size: 13px;
+  color: var(--mute);
+}
+.cardtop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+/* "See all projects" button */
+.more {
+  margin-top: 20px;
+}
+
+/* ===== PROJECT PAGE =====
+   Opens over the content (the sidebar stays visible).
+   Left: name, description, tech stack at the bottom. Right: square image slider. */
+.project {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: var(--side);
+  z-index: 25; /* under the sidebar / mobile menu button */
+  background: var(--bg);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  padding: 96px var(--gutter) 56px;
+}
+.pback {
+  position: fixed;
+  top: calc(28px + env(safe-area-inset-top, 0px));
+  left: calc(var(--side) + var(--gutter));
+  z-index: 2;
+}
+.pgrid {
+  margin: auto; /* centers vertically, and scrolls safely if content is tall */
+  width: 100%;
+  max-width: 1040px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: stretch;
+}
+.pinfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+}
+.pmeta {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.pinfo h2 {
+  font: 400 clamp(2.4rem, 4.4vw, 4rem) / 1 var(--display);
+  letter-spacing: -0.02em;
+}
+.pinfo p {
+  max-width: 30rem;
+  line-height: 1.65;
+  color: var(--mute);
+}
+.plink {
+  font-size: 13px;
+}
+/* tech stack sits at the bottom of the left column */
+.pstack {
+  margin-top: auto;
+  padding-top: 48px;
+}
+.ghost {
+  opacity: 0.35; /* placeholder chips until you fill in stack: [] */
+}
+
+/* vertical image slider */
+.slider {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  aspect-ratio: 1;
+  justify-self: end;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--ph);
+  border: 1px solid var(--line);
+}
+.track {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.9s cubic-bezier(0.65, 0, 0.35, 1);
+  will-change: transform;
+}
+.track.snap {
+  transition: none; /* used for the invisible jump back to the first slide */
+}
+.slide {
+  flex: 0 0 100%; /* each slide fills the slider exactly */
+  position: relative;
+}
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* placeholder slide: dark blue box with text (replace by adding images in data.js) */
+.slide.ph {
+  display: grid;
+  place-items: center;
+  font: 400 clamp(1.4rem, 3vw, 2.2rem) var(--sans);
+  background: var(--ph);
+}
+.slide.ph:nth-child(2) {
+  background: color-mix(in srgb, var(--accent) 14%, var(--ph));
+}
+.slide.ph:nth-child(3) {
+  background: color-mix(in srgb, var(--accent) 26%, var(--ph));
+}
+/* dots on the right edge: the active one stretches and shows the gradient */
+.dots {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dots button {
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  transition:
+    height 0.3s,
+    background 0.3s;
+}
+.dots button.on {
+  height: 22px;
+  background: var(--accent-grad);
+}
+
+/* ===== STACK + TAGS ===== */
+.stack {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 32px 28px;
+}
+.tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.tags span {
+  font-size: 12.5px;
+  border: 1px solid var(--line);
+  padding: 5px 10px;
+  border-radius: 6px;
+}
+
+/* ===== LIST ROWS (certifications, writing) ===== */
+.list a {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+  transition: color 0.2s;
+}
+.list a:first-child {
+  border-top: 1px solid var(--line);
+}
+.list a span {
+  transition: color 0.25s;
+}
+.list .mono {
+  color: var(--mute);
+  font-size: 11.5px;
+}
+
+/* ===== FOOTER ===== */
+footer {
+  position: relative;
+  margin-top: 104px;
+  padding: 48px 0 40px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.mail {
+  font: 400 clamp(1.8rem, 4vw, 3rem) / 1.1 var(--display);
+  letter-spacing: -0.01em;
+  width: max-content;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.fr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--mute);
+}
+
+/* ===== COMMAND PALETTE ===== */
+/* full-screen backdrop, hidden until .on is added */
+#pal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 18vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 80;
+}
+#pal.on {
+  display: flex;
+}
+/* the box in the middle */
+#pal div {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  width: min(420px, 90vw);
+  padding: 8px;
+}
+#pal button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 0;
+  color: var(--fg);
+  font: 14px var(--sans);
+  padding: 11px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+#pal button:hover,
+#pal button:focus-visible {
+  background: var(--card);
+}
+
+/* ===== SCROLL REVEAL ===== */
+/* .rv elements start hidden; main.js adds .in when they scroll into view */
+.rv {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 0.8s,
+    transform 0.8s;
+}
+.rv.in {
+  opacity: 1;
+  transform: none;
+}
+
+/* ===== RESPONSIVE ===== */
+/* smaller laptops: shrink the photo so it doesn't crowd the name */
+@media (max-width: 1280px) {
+  :root {
+    --photo-h: 64vh;
+  }
+}
+
+/* tablet & mobile: sidebar becomes a slide-in drawer */
+@media (max-width: 1023px) {
+  :root {
+    --side: 0px;
+    --gutter: 32px;
+  }
+  aside {
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+    width: 240px;
+  }
+  aside.open {
+    transform: none;
+  }
+  #burger {
+    display: block;
+    position: fixed;
+    right: 16px;
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    z-index: 40;
+    background: var(--bg);
+  }
+  .pback {
+    top: calc(12px + env(safe-area-inset-top, 0px));
+  }
+  section {
+    margin-top: 80px;
+  }
+}
+
+/* project page: stack into one column (slider on top) */
+@media (max-width: 860px) {
+  .pgrid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .slider {
+    order: -1;
+    max-width: none;
+    justify-self: stretch;
+  }
+  .pstack {
+    padding-top: 8px;
+  }
+}
+
+/* small screens: hero stacks (photo on top, text below), projects one column */
+@media (max-width: 760px) {
+  :root {
+    --gutter: 20px;
+    --photo-h: 44vh;
+  }
+  .hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding: 80px var(--gutter) 0;
+    gap: 24px;
+  }
+  .intro {
+    padding: 0 0 48px;
+  }
+  .photo {
+    align-self: flex-end;
+    margin-right: calc(
+      var(--gutter) * -1
+    ); /* keep the bleed off the right edge */
+  }
+  .intro h1 {
+    white-space: normal;
+  }
+  .bento {
+    grid-template-columns: 1fr;
+  }
+  .card {
+    min-height: 240px;
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+/* users who prefer less motion: turn off animations and show everything */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+  .rv {
+    opacity: 1;
+    transform: none;
+  }
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+  .sec-head::after,
+  footer::after {
+    clip-path: inset(0);
+  }
+}
+
+/* =====================================================================
+   STAR BUDDY ("Lumi") — the floating star + its chat (see buddy.js)
+   ===================================================================== */
+/* the star's anchor point (moved by JS); everything is centered on it */
+.buddy {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  z-index: 60;
+  --bs: 52px; /* star size */
+  pointer-events: none;
+}
+.buddy-star {
+  position: absolute;
+  left: calc(var(--bs) / -2);
+  top: calc(var(--bs) / -2);
+  width: var(--bs);
+  height: var(--bs);
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+  will-change: transform;
+}
+.buddy-star svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 0 10px rgba(79, 140, 255, 0.55))
+    drop-shadow(0 0 2px rgba(238, 106, 77, 0.35));
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.buddy-star:hover svg {
+  transform: scale(1.16);
+}
+.buddy-star:active svg {
+  transform: scale(0.88);
+}
+
+/* faces: idle (open eyes), happy (^ ^), sleep (— —), wow (big eyes) */
+.buddy-star .f-happy,
+.buddy-star .f-sleep {
+  display: none;
+}
+.buddy-star.m-happy .f-eyes,
+.buddy-star.m-sleep .f-eyes {
+  display: none;
+}
+.buddy-star.m-happy .f-happy,
+.buddy-star.m-sleep .f-sleep {
+  display: inline;
+}
+.buddy-star .eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.07s;
+}
+.buddy-star.blink .eye {
+  transform: scaleY(0.08);
+}
+.buddy-star.m-wow .eye {
+  transform: scale(1.3);
+}
+.zzz {
+  position: absolute;
+  right: -6px;
+  top: -10px;
+  font: 600 13px var(--sans);
+  color: var(--accent);
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+.zzz i {
+  font-style: normal;
+  font-size: 10px;
+  margin-left: 2px;
+}
+.buddy-star.asleep .zzz {
+  opacity: 1;
+  animation: zzz 2.4s ease-in-out infinite;
+}
+@keyframes zzz {
+  50% {
+    transform: translate(3px, -6px);
+  }
+}
+
+/* speech bubble (same look as the reference: light card, name in gray) */
+.buddy-bubble {
+  position: absolute;
+  right: calc(var(--bs) / 2 + 14px);
+  top: 0;
+  width: max-content;
+  max-width: min(270px, calc(100vw - 120px));
+  padding: 11px 16px 13px;
+  border-radius: 18px;
+  background: var(--fg);
+  color: var(--bg);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  cursor: pointer;
+  transform: translateY(-50%) scale(0.85);
+  transform-origin: right center;
+  transition:
+    opacity 0.25s,
+    transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.buddy-bubble.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(-50%) scale(1);
+}
+.buddy-bubble .who {
+  font: 600 13px var(--sans);
+  opacity: 0.55;
+  margin-bottom: 2px;
+}
+.buddy-bubble .said {
+  font: 500 15px/1.35 var(--sans);
+}
+
+/* sparkles it sheds while moving */
+.spark {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 59;
+  pointer-events: none;
+  background: var(--c);
+  clip-path: polygon(
+    50% 0,
+    61% 39%,
+    100% 50%,
+    61% 61%,
+    50% 100%,
+    39% 61%,
+    0 50%,
+    39% 39%
+  );
+  transform: translate(var(--sx), var(--sy));
+  animation: spark 0.85s ease-out forwards;
+}
+@keyframes spark {
+  from {
+    opacity: 0.9;
+    transform: translate(var(--sx), var(--sy)) scale(1) rotate(0deg);
+  }
+  to {
+    opacity: 0;
+    transform: translate(
+        calc(var(--sx) + var(--dx)),
+        calc(var(--sy) + var(--dy))
+      )
+      scale(0) rotate(120deg);
+  }
+}
+
+/* chat panel */
+.bchat {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 58; /* under the star, so the star can sit in its header */
+  width: 360px;
+  height: min(540px, calc(100vh - 120px));
+  display: flex;
+  flex-direction: column;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transform: translateY(14px) scale(0.94);
+  transform-origin: bottom right;
+  transition:
+    opacity 0.3s ease,
+    transform 0.5s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+.bchat.on {
+  opacity: 1;
+  transform: none;
+}
+/* soft gradient haze behind the header */
+.bchat::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -90px;
+  left: -70px;
+  width: 300px;
+  height: 220px;
+  background:
+    radial-gradient(
+      circle at 35% 45%,
+      rgba(79, 140, 255, 0.4),
+      transparent 62%
+    ),
+    radial-gradient(circle at 70% 65%, rgba(240, 162, 79, 0.2), transparent 60%);
+  filter: blur(24px);
+  pointer-events: none;
+}
+.bchat header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.bslot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex: none;
+  background: color-mix(
+    in srgb,
+    var(--accent) 12%,
+    transparent
+  ); /* the star lands here */
+}
+.btitle {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.btitle b {
+  font: 500 15px var(--sans);
+}
+.bclose {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--mute);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.bclose:hover {
+  background: var(--card);
+}
+.bmsgs {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+}
+.bmsg {
+  max-width: 86%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.bmsg.bot {
+  align-self: flex-start;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-bottom-left-radius: 6px;
+}
+.bmsg.user {
+  align-self: flex-end;
+  background: linear-gradient(135deg, #3b6ee8, #4f8cff);
+  color: #fff;
+  border-bottom-right-radius: 6px;
+}
+.bmsg.typing {
+  display: flex;
+  gap: 4px;
+  padding: 14px;
+}
+.bmsg.typing i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mute);
+  animation: dot 1s ease-in-out infinite;
+}
+.bmsg.typing i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.bmsg.typing i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+@keyframes dot {
+  50% {
+    transform: translateY(-4px);
+    opacity: 0.5;
+  }
+}
+.bacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.bact {
+  font: 500 12px var(--sans);
+  padding: 6px 11px;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  background: none;
+  color: var(--fg);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.bact:hover {
+  border-color: var(--accent);
+}
+.bchips {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.bchips::-webkit-scrollbar {
+  display: none;
+}
+.bchips button {
+  flex: none;
+  font: 400 12.5px var(--sans);
+  padding: 7px 12px;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  background: none;
+  color: var(--mute);
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+.bchips button:hover {
+  color: var(--fg);
+  border-color: var(--accent);
+}
+.bform {
+  display: flex;
+  gap: 8px;
+  padding: 12px 14px 14px;
+  border-top: 1px solid var(--line);
+}
+.bform input {
+  flex: 1;
+  min-width: 0;
+  padding: 11px 16px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  background: var(--card);
+  color: var(--fg);
+  font: 14px var(--sans);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.bform input:focus {
+  border-color: var(--accent);
+}
+.bform button {
+  width: 42px;
+  height: 42px;
+  flex: none;
+  border: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b6ee8, #4f8cff);
+  color: #fff;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+@media (max-width: 760px) {
+  .buddy {
+    --bs: 44px;
+  }
+  .bchat {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    width: auto;
+    height: min(72vh, 560px);
+  }
+  .bform input {
+    font-size: 16px; /* stops iOS from zooming in */
+  }
+}

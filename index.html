@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Kurt Antonico — Full Stack & AI Engineer</title>
+    <meta
+      name="description"
+      content="Portfolio of Kurt Antonico, an aspiring Full Stack Software & AI Engineer building web and mobile apps, moving toward applied agricultural AI."
+    />
+    <meta
+      property="og:title"
+      content="Kurt Antonico — Full Stack & AI Engineer"
+    />
+    <meta
+      property="og:description"
+      content="Web & mobile apps, and a path into applied agricultural AI."
+    />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- Mobile menu button (hidden on desktop) -->
+    <button class="btn" id="burger" aria-label="Menu" aria-expanded="false">
+      Menu
+    </button>
+
+    <!-- Sidebar: brand | nav | tools | contact -->
+    <aside id="side" aria-label="Site">
+      <div class="side-brand">
+        <div class="brand">Kurt Antonico</div>
+        <div class="micro">Full stack &amp; AI</div>
+      </div>
+      <nav>
+        <a href="#home">Home</a>
+        <a href="#projects">Projects</a>
+        <a href="#stack">Stack</a>
+        <a href="#certs">Certifications</a>
+        <a href="#writing">Writing</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="side-tools">
+        <button class="btn" id="kbd" aria-label="Open command palette">
+          Ask anything <span>⌘K</span>
+        </button>
+        <button class="btn" id="theme" aria-label="Toggle theme">
+          Theme <span>◐</span>
+        </button>
+      </div>
+      <div class="side-contact">
+        <p class="micro">For work, collabs &amp; everything else</p>
+        <a class="ul" id="sidemail" href="#">email</a>
+      </div>
+    </aside>
+
+    <main>
+      <!-- Hero: name bottom-left, photo bleeding off the right -->
+      <section id="home" class="hero">
+        <div class="photo rv" id="photo"></div>
+        <div class="intro rv">
+          <h1 id="name"></h1>
+          <div class="links" id="links"></div>
+          <p id="bio"></p>
+          <div class="logos" id="orgs"></div>
+        </div>
+      </section>
+
+      <!-- Everything below the hero: centered, max 960px -->
+      <div class="col">
+        <section id="projects">
+          <div class="sec-head"><h2 class="micro">01 — projects</h2></div>
+          <div class="bento" id="bento"></div>
+          <button class="btn more" id="seeall" aria-expanded="false"></button>
+        </section>
+
+        <section id="stack">
+          <div class="sec-head"><h2 class="micro">02 — stack</h2></div>
+          <div class="stack" id="stackg"></div>
+        </section>
+
+        <section id="certs">
+          <div class="sec-head"><h2 class="micro">03 — certifications</h2></div>
+          <div class="list" id="certl"></div>
+        </section>
+
+        <section id="writing">
+          <div class="sec-head">
+            <h2 class="micro">04 — writing</h2>
+            <a
+              class="micro ul"
+              id="allposts"
+              href="#"
+              target="_blank"
+              rel="noopener"
+              >All posts →</a
+            >
+          </div>
+          <div class="list" id="postl"></div>
+        </section>
+
+        <footer id="contact">
+          <div class="micro">(Contact me)</div>
+          <a class="mail ul" id="mail" href="#">you@example.com</a>
+          <div class="fr">
+            <div class="links" id="flinks"></div>
+            <span class="micro" id="clock"></span>
+            <a class="ul" href="#home">Back to top ↑</a>
+          </div>
+        </footer>
+      </div>
+    </main>
+
+    <!-- Project page: opens over the content when a project card is clicked.
+         data-lenis-prevent = this panel scrolls on its own, not the page. -->
+    <div
+      class="project"
+      id="project"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Project details"
+      data-lenis-prevent
+      hidden
+    >
+      <button class="btn pback" id="pback">← Back</button>
+      <div class="pgrid">
+        <div class="pinfo">
+          <div class="pmeta micro" id="pmeta"></div>
+          <h2 id="ptitle"></h2>
+          <p id="pdesc"></p>
+          <a class="ul plink" id="plink" target="_blank" rel="noopener" hidden
+            >View project ↗</a
+          >
+          <div class="pstack">
+            <div class="micro">Tech stack</div>
+            <div class="tags" id="pstack"></div>
+          </div>
+        </div>
+        <div class="slider" id="pslider"></div>
+      </div>
+    </div>
+
+    <!-- Command palette -->
+    <div id="pal" role="dialog" aria-label="Jump to section">
+      <div id="palin"></div>
+    </div>
+
+    <script src="lenis.min.js"></script>
+    <script src="data.js"></script>
+    <script src="buddy-data.js"></script>
+    <script src="main.js"></script>
+    <script src="buddy.js"></script>
+  </body>
+</html>
